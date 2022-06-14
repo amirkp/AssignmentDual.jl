@@ -100,8 +100,22 @@ function find_best_assignment(cost_matrix::AbstractMatrix{T}, maximize::Bool=fal
 	@inbounds for curCol=1:numCol
 		gain += cost_matrix[row4col[curCol],curCol]
 	end
-	return AssignmentSolution{T, S}(col4row, row4col, gain, u, v)
+    
+    u1 = copy(u)
+	u1 = -u1
+	minu1 = minimum(u1)
+	u1 = u1 .- minu1
+	v1 = zeros(T, numCol)
+	cmat = -cost_matrix
+	for  i = 1:numRow
+		v1[i] = cmat[i, col4row[i]] - u1[col4row[i]]
+	end
+
+
+
+	return AssignmentSolution{T, S}(col4row, row4col, gain, u, v), v1, u1
 end
+
 
 
 _dual_eltype(T) = T <: Integer ? signed(promote_type(T, Int32)) : T
